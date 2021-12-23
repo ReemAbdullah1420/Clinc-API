@@ -5,16 +5,16 @@ const ClinicDepartmentsSchema = new mongoose.Schema({
   name: String,
   description: String,
   image: String,
-  doctors: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: "Doctor",
-    },
-  ],
   services: [
     {
       type: mongoose.Types.ObjectId,
       ref: "Service",
+    },
+  ],
+  doctors: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
     },
   ],
 })
@@ -22,8 +22,8 @@ const ClinicDepartmentsAddjoi = Joi.object({
   name: Joi.string().max(100).min(1).required(),
   description: Joi.string().min(4).max(1000).required(),
   image: Joi.string().uri().required(),
-  doctors: Joi.array().items(Joi.ObjectId()).min(1).required(),
-  services: Joi.array().items(Joi.ObjectId()).min(1).required(),
+  doctors: Joi.array().items(Joi.ObjectId()).min(1),
+  services: Joi.array().items(Joi.ObjectId()).min(1),
 })
 const ClinicDepartmentsEditjoi = Joi.object({
   name: Joi.string().max(100).min(1),

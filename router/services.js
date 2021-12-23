@@ -1,5 +1,5 @@
 const express = require("express")
-const mongoose = require("mongoose")
+const router = express.Router()
 const checkadmin = require("../middelwear/checkadmin")
 const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
@@ -28,11 +28,11 @@ router.get("/:id", checkId, checkadmin, async (req, res) => {
 router.post("/", checkadmin, validatebody(ServiceAddjoi), async (req, res) => {
   try {
     const { service } = req.body
-    const service = new Service({
+    const services = new Service({
       service,
     })
-    await service.save()
-    res.json(service)
+    await services.save()
+    res.json(services)
   } catch (error) {
     return res.status(500).send(error.message)
   }
@@ -41,15 +41,15 @@ router.post("/", checkadmin, validatebody(ServiceAddjoi), async (req, res) => {
 router.put("/:id", checkadmin, checkId, validatebody(ServiceEditjoi), async (req, res) => {
   try {
     const { service } = req.body
-    const service = await Service.findByIdAndUpdate(
+    const services = await Service.findByIdAndUpdate(
       req.params.id,
       {
         $set: { service },
       },
       { new: true }
     )
-    if (!service) return res.status(404).send("service not found ")
-    res.json(service)
+    if (!services) return res.status(404).send("service not found ")
+    res.json(services)
   } catch (error) {
     return res.status(500).send(error.message)
   }
@@ -65,4 +65,4 @@ router.delete("/:id", checkadmin, checkId, async (req, res) => {
   }
 })
 
-const router = express.Router()
+module.exports = router

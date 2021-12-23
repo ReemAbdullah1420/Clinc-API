@@ -9,15 +9,15 @@ const AnalyzingSchema = new mongoose.Schema({
 })
 const AnalyzingAddjoi = Joi.object({
   analysisName: Joi.string().max(100).min(1).required(),
-  value: Joi.string.max(100).min(1).required(),
-  normalValue: Joi.string().min(4).max(1000).required(),
-  explanation: Joi.string().min(10).max(11).required(),
+  value: Joi.string().max(100).min(1).required(),
+  normalValue: Joi.string().min(2).max(100).required(),
+  explanation: Joi.string().min(2).max(100).required(),
 })
 const AnalyzingEditjoi = Joi.object({
   analysisName: Joi.string().max(100).min(1),
-  value: Joi.string.max(100).min(1),
-  normalValue: Joi.string().min(4).max(1000),
-  explanation: Joi.string().min(10).max(11),
+  value: Joi.string().max(100).min(1),
+  normalValue: Joi.string().min(2).max(100),
+  explanation: Joi.string().min(2).max(100),
 })
 const Analyzing = mongoose.model("Analyzing", AnalyzingSchema)
 module.exports.Analyzing = Analyzing

@@ -5,14 +5,10 @@ const userSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   email: String,
-  //   emailVerified: {
-  //     type: Boolean,
-  //     default: false,
-  //   },
   password: String,
   image: String,
   specialization: String,
-  certificate: String,
+  // certificate: String,
   Appointments: [
     {
       type: mongoose.Types.ObjectId,
@@ -49,10 +45,10 @@ const userSchema = new mongoose.Schema({
       ref: "MadacalFile",
     },
   ],
-  Bloode: [
+  Blood: [
     {
       type: mongoose.Types.ObjectId,
-      ref: "Bloode",
+      ref: "Blood",
     },
   ],
   Apply: [
@@ -105,18 +101,16 @@ const loginJoi = Joi.object({
 const profileJoi = Joi.object({
   firstName: Joi.string().min(2).max(100),
   lastName: Joi.string().min(2).max(100),
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .max(100),
   password: Joi.string().min(6).max(100),
   image: Joi.string().uri().min(6).max(100),
-  Appointments: Joi.array().items(Joi.ObjectId()).min(1),
-  Vaccines: Joi.array().items(Joi.ObjectId()).min(1),
-  Medicinerecords: Joi.array().items(Joi.ObjectId()).min(1),
-  Rays: Joi.array().items(Joi.ObjectId()).min(1),
-  Analyzings: Joi.array().items(Joi.ObjectId()).min(1),
-  MadacalFile: Joi.array().items(Joi.ObjectId()).min(1),
-  Bloode: Joi.array().items(Joi.ObjectId()).min(1),
 })
 const User = mongoose.model("User", userSchema)
 module.exports.User = User
 module.exports.signupJoi = signupJoi
 module.exports.loginJoi = loginJoi
 module.exports.profileJoi = profileJoi
+module.exports.singupdoctorJoi = singupdoctorJoi
+module.exports.logindoctorJoi = logindoctorJoi

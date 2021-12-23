@@ -9,15 +9,15 @@ const BloodSchema = new mongoose.Schema({
 })
 const BloodAddjoi = Joi.object({
   bloodType: Joi.string().max(100).min(1).required(),
-  bloodDonor: Joi.string.max(100).min(1).required(),
-  NextDonationDate: Joi.date().min(4).max(1000).required(),
-  lastDonationDate: Joi.date().min(10).max(11).required(),
+  bloodDonor: Joi.string().max(100).min(1).required(),
+  NextDonationDate: Joi.date().required(),
+  lastDonationDate: Joi.date().required(),
 })
 const BloodEditjoi = Joi.object({
   bloodType: Joi.string().max(100).min(1),
-  bloodDonor: Joi.string.max(100).min(1),
-  NextDonationDate: Joi.date().min(4).max(1000),
-  lastDonationDate: Joi.date().min(10).max(11),
+  bloodDonor: Joi.string().max(100).min(1),
+  NextDonationDate: Joi.date(),
+  lastDonationDate: Joi.date(),
 })
 const Blood = mongoose.model("Blood", BloodSchema)
 module.exports.Blood = Blood

@@ -13,14 +13,14 @@ const MedicineRecordAddjoi = Joi.object({
   strength: Joi.string().max(100).min(2).required(),
   dosageForm: Joi.string().max(100).min(2).required(),
   routeOfAdministration: Joi.string().max(100).min(2).required(),
-  packageSize: Joi.number().max(100).min(2).required(),
+  packageSize: Joi.number().required(),
 })
 const MedicineRecordEditjoi = Joi.object({
   name: Joi.string().max(100).min(1),
   strength: Joi.string().max(100).min(2),
   dosageForm: Joi.string().max(100).min(2),
   routeOfAdministration: Joi.string().max(100).min(2),
-  packageSize: Joi.number().max(100).min(2),
+  packageSize: Joi.number(),
 })
 const MedicineRecord = mongoose.model("MedicineRecord", MedicineRecordSchema)
 module.exports.MedicineRecord = MedicineRecord

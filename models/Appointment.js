@@ -2,10 +2,8 @@ const mongoose = require("mongoose")
 const Joi = require("joi")
 
 const AppointmentSchema = new mongoose.Schema({
-  clincname: String,
   date: Date,
-  time: Number,
-  numerPhone: Number,
+  time: String,
   doctorId: {
     type: mongoose.Types.ObjectId,
     ref: "Doctor",
@@ -16,18 +14,14 @@ const AppointmentSchema = new mongoose.Schema({
   },
 })
 const AppointmentAddjoi = Joi.object({
-  clincname: Joi.string().max(100).min(1).required(),
   date: Joi.date().max(100).min(1).required(),
-  time: Joi.number().min(4).max(1000).required(),
-  numerPhone: Joi.number().min(10).max(11).required(),
+  time: Joi.string().min(1).max(1000).required(),
 })
 const AppointmentEditjoi = Joi.object({
-  clincname: Joi.string().max(100).min(1),
   date: Joi.date().max(100).min(1),
-  time: Joi.number().min(4).max(1000),
-  numerPhone: Joi.number().min(10).max(11),
+  time: Joi.string().min(1).max(1000),
 })
-const Appointment = mongoose.model("Apply", ApplySchema)
-module.exports.Appointment=Appointment
-module.exports.AppointmentAddjoi=AppointmentAddjoi
-module.exports.AppointmentEditjoi=AppointmentEditjoi
+const Appointment = mongoose.model("Appintment", AppointmentSchema)
+module.exports.Appointment = Appointment
+module.exports.AppointmentAddjoi = AppointmentAddjoi
+module.exports.AppointmentEditjoi = AppointmentEditjoi
