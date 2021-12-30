@@ -4,9 +4,11 @@ const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
 const { Program, ProgramAddjoi, ProgramEditjoi } = require("../models/Porgram")
 const checkadmin = require("../middelwear/checkadmin")
+const checktoken = require("../middelwear/checktoken")
+const validateId = require("../middelwear/validateId")
 
 //-------------------------get Porgram--------------------------
-router.get("/", checkadmin, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const porgram = await Program.find().select("-__v")
     res.json(porgram)
@@ -57,5 +59,13 @@ router.delete("/:id", checkadmin, checkId, async (req, res) => {
     return res.status(500).send(error.message)
   }
 })
-
+//---------------------------add-applctiont-------------------------------
+router.post("/:programId/add-applicants", checktoken, validateId("programId"), async (req, res) => {
+  try {
+    await Program.findByIdAndUpdate(req.params.programId, { $push: { applicants: req.userId } })
+    res.json("add applicants")
+  } catch (error) {
+    return res.status(500).send(error.message)
+  }
+})
 module.exports = router

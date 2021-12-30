@@ -17,6 +17,10 @@ const ProgramSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  type: {
+    type: String,
+    enum: ["Company", "Home"],
+  },
 })
 const ProgramAddjoi = Joi.object({
   title: Joi.string().max(100).min(1).required(),

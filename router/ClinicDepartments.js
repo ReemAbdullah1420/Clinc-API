@@ -3,8 +3,9 @@ const router = express.Router()
 const checkadmin = require("../middelwear/checkadmin")
 const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
-const { Doctor } = require("../models/Doctor")
 const { ClinicDepartmentsAddjoi, ClinicDepartmentsEditjoi, ClinicDepartments } = require("../models/ClinicDepartments")
+const { User } = require("../models/User")
+
 
 //-----------------------------------get ClinicDepartments--------------------------------
 router.get("/", async (req, res) => {
@@ -41,7 +42,7 @@ router.post("/", checkadmin, validatebody(ClinicDepartmentsAddjoi), async (req, 
     if (doctors) {
       const doctorSet = new Set(doctors)
       if (doctorSet.size < doctors.length) return res.status(400).send("there is duplicated")
-      const doctorFound = await Doctor.find({ _id: { $in: doctors } })
+      const doctorFound = await User.find({ _id: { $in: doctors }, type: "Doctor" })
       if (doctorFound.length < doctors.length) return res.status(404).send("some of the doctors is not found ")
     }
     const clinicDepartment = new ClinicDepartments({
@@ -64,7 +65,7 @@ router.put("/:id", checkadmin, checkId, validatebody(ClinicDepartmentsEditjoi), 
     if (doctors) {
       const doctorSet = new Set(doctors)
       if (doctorSet.size < doctors.length) return res.status(400).send("there is duplicated")
-      const doctorFound = await Doctor.find({ _id: { $in: doctors } })
+      const doctorFound = await User.find({ _id: { $in: doctors },type: "Doctor" })
       if (doctorFound.length < doctors.length) return res.status(404).send("some of the doctors is not found ")
     }
     const clinicDepartment = await ClinicDepartments.findByIdAndUpdate(

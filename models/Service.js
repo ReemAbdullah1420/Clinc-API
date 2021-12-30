@@ -3,6 +3,12 @@ const Joi = require("joi")
 
 const ServiceSchema = new mongoose.Schema({
   service: String,
+  clinicDepartments: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "ClinicDepartments",
+    },
+  ],
 })
 const ServiceAddjoi = Joi.object({
   service: Joi.string().max(100).min(1).required(),

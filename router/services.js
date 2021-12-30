@@ -6,9 +6,9 @@ const validatebody = require("../middelwear/validateboody")
 const { Service, ServiceAddjoi, ServiceEditjoi } = require("../models/Service")
 
 //---------------------------get service------------------------
-router.get("/", checkadmin, async (eq, res) => {
+router.get("/", async (eq, res) => {
   try {
-    const service = await Service.find().select("-__v")
+    const service = await Service.find().select("-__v").populate("clinicDepartments")
     res.json(service)
   } catch (error) {
     return res.status(500).send(error.message)

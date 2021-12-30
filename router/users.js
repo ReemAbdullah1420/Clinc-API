@@ -2,7 +2,16 @@ const express = require("express")
 const router = express.Router()
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
-const { User, signupJoi, loginJoi, profileJoi, singupdoctorJoi, logindoctorJoi } = require("../models/User")
+const {
+  User,
+  signupJoi,
+  loginJoi,
+  profileJoi,
+  singupdoctorJoi,
+  logindoctorJoi,
+  signupCompnyJoi,
+  loginCompanyJoi,
+} = require("../models/User")
 const checktoken = require("../middelwear/checktoken")
 const checkadmin = require("../middelwear/checkadmin")
 const checkId = require("../middelwear/checkId")
@@ -10,8 +19,8 @@ const validatebody = require("../middelwear/validateboody")
 const checkDoctor = require("../middelwear/checkDoctor")
 
 //......................get all user-------------------------
-router.get("/user", checkadmin, async (req, res) => {
-  const user = await User.find()
+router.get("/users", checkadmin, async (req, res) => {
+  const user = await User.find({ role: "User" })
   res.json(user)
 })
 //.....................get byId user---------------------------
@@ -70,12 +79,12 @@ router.post("/signup", validatebody(signupJoi), async (req, res) => {
 router.post("/login", validatebody(loginJoi), async (req, res) => {
   try {
     const { email, password } = req.body
-    const user = await User.findOne({ email }) //*هذيuser
+    const user = await User.findOne({ email, role: "User" })
     if (!user) return res.status(404).send("user not found ")
     const vaild = await bcrypt.compare(password, user.password)
     if (!vaild) return res.status(400).send(" password incorrect ")
     // if (!user.emailVerified) return res.status(403).send("user not verified plases check your email")
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" }) //user اللي هنا بحط علامة * عليها
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" })
     res.json(token)
   } catch (error) {
     return res.status(500).send(error.message)
@@ -93,11 +102,11 @@ router.delete("/user/:id", checkadmin, checkId, async (req, res) => {
     res.status(500).send(error.message)
   }
 })
-
+/////doctor////////////////////////////////////////////////////
 //------------------------get doctors-----------------------------------
 router.get("/doctor", checkadmin, async (req, res) => {
   try {
-    const doctors = await User.find({ type: "Doctor" }).select("-__v")
+    const doctors = await User.find({ role: "Doctor" }).select("-__v")
     res.json(doctors)
   } catch (error) {
     return res.status(500).send(error.message)
@@ -142,7 +151,7 @@ router.post("/add-doctor", checkadmin, validatebody(singupdoctorJoi), async (req
 router.post("/login/doctor", validatebody(logindoctorJoi), async (req, res) => {
   try {
     const { email, password } = req.body
-    const doctor = await User.findOne({ email })
+    const doctor = await User.findOne({ email, role: "Doctor" })
     if (!doctor) return res.status(404).send("doctor  not found ")
     if (doctor.role != "Doctor") return res.status(403).send("you not doctor")
     const vaild = await bcrypt.compare(password, doctor.password)
@@ -164,7 +173,9 @@ router.delete("/doctor/:id", checkadmin, checkId, async (req, res) => {
   } catch (error) {
     res.status(500).send(error.message)
   }
-}) // اخر شي بسويه ف البوست مان
+})
+
+// اخر شي بسويه ف البوست مان
 router.post("/add-admin", checkadmin, validatebody(signupJoi), async (req, res) => {
   try {
     const userbody = req.body
@@ -267,5 +278,60 @@ router.put("/doctors/profile/:id", checkDoctor, validatebody(profileJoi), async 
     return res.status(500).send(error.message)
   }
 })
+///company////////////////////////////////////////////////////////////
 
+router.get("/company", checkadmin, async (req, res) => {
+  try {
+    const company = await User.find({ role: "Company" }).select("-__v ")
+    res.json(company)
+  } catch (error) {
+    return res.status(500).send(error.message)
+  }
+})
+router.post("/signup-company", validatebody(signupCompnyJoi), async (req, res) => {
+  try {
+    const companybody = req.body
+    const { name, email, password } = companybody
+    const companyfound = await User.findOne({ email })
+    if (companyfound) return res.status(404).send("company alrady register")
+    const salt = await bcrypt.genSalt(10)
+    const hash = await bcrypt.hash(password, salt)
+
+    const company = new User({
+      name,
+      email,
+      password: hash,
+      role: "Company",
+    })
+    await company.save()
+    delete company._doc.password
+    res.json(company)
+  } catch (error) {
+    return res.status(500).send(error.message)
+  }
+})
+router.post("/login-company", validatebody(loginCompanyJoi), async (req, res) => {
+  try {
+    const { email, password } = req.body
+    const company = await User.findOne({ email, role: "Company" })
+    if (!company) return res.status(404).send("company not found ")
+    const vaild = await bcrypt.compare(password, company.password)
+    if (!vaild) return res.status(400).send(" password incorrect ")
+    const token = jwt.sign({ id: company._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" })
+    res.json(token)
+  } catch (error) {
+    return res.status(500).send(error.message)
+  }
+})
+router.delete("/company/:id", checkadmin, checkId, async (req, res) => {
+  try {
+    const company = await User.findById(req.params.id)
+    if (!company) return res.status(404).send("campany not found ")
+    if (company.role === "Admin") return res.status(403).send("auauthorized action")
+    await User.findByIdAndRemove(req.params.id)
+    res.json("removed")
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+})
 module.exports = router

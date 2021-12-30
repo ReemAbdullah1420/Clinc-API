@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema({
   ],
   role: {
     type: String,
-    enum: ["User", "Admin", "Doctor"],
+    enum: ["User", "Admin", "Doctor", "Company "],
     default: "User",
   },
 })
@@ -107,6 +107,21 @@ const profileJoi = Joi.object({
   password: Joi.string().min(6).max(100),
   image: Joi.string().uri().min(6).max(100),
 })
+const signupCompnyJoi = Joi.object({
+  Name: Joi.string().min(2).max(100).required(),
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .max(100)
+    .required(),
+  password: Joi.string().min(2).max(100).required(),
+})
+const loginCompanyJoi = Joi.object({
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .max(100)
+    .required(),
+  password: Joi.string().min(2).max(100).required(),
+})
 const User = mongoose.model("User", userSchema)
 module.exports.User = User
 module.exports.signupJoi = signupJoi
@@ -114,3 +129,5 @@ module.exports.loginJoi = loginJoi
 module.exports.profileJoi = profileJoi
 module.exports.singupdoctorJoi = singupdoctorJoi
 module.exports.logindoctorJoi = logindoctorJoi
+module.exports.signupCompnyJoi = signupCompnyJoi
+module.exports.loginCompanyJoi = loginCompanyJoi
