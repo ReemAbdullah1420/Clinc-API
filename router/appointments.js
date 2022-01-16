@@ -20,10 +20,11 @@ router.get("/", checkDoctor, async (req, res) => {
 //----------------------post Appoinment-------------------------------
 router.post("/", checkDoctor, validatebody(AppointmentAddjoi), async (req, res) => {
   try {
-    const { date, time } = req.body
+    const { date, time ,day } = req.body
     const appointment = new Appointment({
       date,
       time,
+      day,
       doctorId: req.doctorId,
     })
     await appointment.save()
@@ -35,11 +36,11 @@ router.post("/", checkDoctor, validatebody(AppointmentAddjoi), async (req, res) 
 //--------------------------put Appontment --------------------------
 router.put("/:id", checkId, checkDoctor, validatebody(AppointmentEditjoi), async (req, res) => {
   try {
-    const { date, time } = req.body
+    const { date, time,day } = req.body
     const appointment = await Appointment.findByIdAndUpdate(
       req.params.id,
       {
-        $set: { date, time },
+        $set: { date, time,day },
       },
       { new: true }
     )
