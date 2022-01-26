@@ -22,7 +22,7 @@ router.get("/:id", checkId, checkDoctor, async (req, res) => {
   res.json(blood)
 })
 //----------------------post Blood-------------------------------
-router.post("/", checkDoctor, validatebody(BloodAddjoi), async (req, res) => {
+router.post("/:AppointmentId", checkDoctor, validatebody(BloodAddjoi), async (req, res) => {
   try {
     const { bloodType, bloodDonor, NextDonationDate, lastDonationDate } = req.body
     const blood = new Blood({

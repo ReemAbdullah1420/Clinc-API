@@ -22,7 +22,7 @@ router.get("/:id", checkId, checkDoctor, async (req, res) => {
   res.json(ray)
 })
 //----------------------post Ray-------------------------------
-router.post("/", checkDoctor, validatebody(RayAddjoi), async (req, res) => {
+router.post("/:AppointmentId", checkDoctor, validatebody(RayAddjoi), async (req, res) => {
   try {
     const { rayName, rayImage } = req.body
     const ray = new Ray({

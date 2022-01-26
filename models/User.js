@@ -8,8 +8,13 @@ const userSchema = new mongoose.Schema({
   password: String,
   image: String,
   specialization: String,
-  // certificate: String,
   Appointments: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "Appointment",
+    },
+  ],
+  AvailableAppointments: [
     {
       type: mongoose.Types.ObjectId,
       ref: "Appointment",
@@ -62,7 +67,9 @@ const userSchema = new mongoose.Schema({
     enum: ["User", "Admin", "Doctor", "Company "],
     default: "User",
   },
+  
 })
+
 const signupJoi = Joi.object({
   firstName: Joi.string().min(2).max(100).required(),
   lastName: Joi.string().min(2).max(100).required(),

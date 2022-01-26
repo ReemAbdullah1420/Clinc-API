@@ -2,10 +2,22 @@ const mongoose = require("mongoose")
 const Joi = require("joi")
 
 const AnalyzingSchema = new mongoose.Schema({
-  analysisName: String,
-  value: String,
-  normalValue: String,
-  explanation: String,
+  analysisName: {
+    type: String,
+    default: "There are no data",
+  },
+  value: {
+    type: String,
+    default: "There are no data",
+  },
+  normalValue: {
+    type: String,
+    default: "There are no data",
+  },
+  explanation: {
+    type: String,
+    default: "There are no data",
+  },
 })
 const AnalyzingAddjoi = Joi.object({
   analysisName: Joi.string().max(100).min(1).required(),

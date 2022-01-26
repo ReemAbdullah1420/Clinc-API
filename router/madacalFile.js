@@ -22,7 +22,7 @@ router.get("/:id", checkId, checkDoctor, async (req, res) => {
   res.json(madacalFile)
 })
 //----------------------post MadacalFile-------------------------------
-router.post("/", checkDoctor, validatebody(MadacalFileAddjoi), async (req, res) => {
+router.post("/:AppointmentId", checkDoctor, validatebody(MadacalFileAddjoi), async (req, res) => {
   try {
     const { gender, nationality, bloodType, sensitivity, mobilePhone, fileNumber, age, dateFile } = req.body
     const madacalFile = new MadacalFile({

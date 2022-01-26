@@ -18,12 +18,13 @@ const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
 const checkDoctor = require("../middelwear/checkDoctor")
 
+//////////////////////user///////////////////////////////////
 //......................get all user-------------------------
 router.get("/users", checkadmin, async (req, res) => {
   const user = await User.find({ role: "User" })
   res.json(user)
 })
-//.....................get byId user---------------------------
+//.....................get byId user-------------------------
 router.get("/user/:id", checkadmin, checkId, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-__v")
@@ -33,7 +34,7 @@ router.get("/user/:id", checkadmin, checkId, async (req, res) => {
     return res.status(500).send(error.message)
   }
 })
-//------------------------ post signup ----------------------------------
+//------------------------ post signup-----------------------
 router.post("/signup", validatebody(signupJoi), async (req, res) => {
   try {
     const userbody = req.body
@@ -75,7 +76,7 @@ router.post("/signup", validatebody(signupJoi), async (req, res) => {
     return res.status(500).send(error.message)
   }
 })
-//-------------------------post login user---------------------------------
+//-------------------------post login user-------------------
 router.post("/login", validatebody(loginJoi), async (req, res) => {
   try {
     const { email, password } = req.body
@@ -90,7 +91,7 @@ router.post("/login", validatebody(loginJoi), async (req, res) => {
     return res.status(500).send(error.message)
   }
 })
-//------------------------delete user ---------------------------------
+//------------------------delete user -----------------------
 router.delete("/user/:id", checkadmin, checkId, async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
@@ -102,8 +103,9 @@ router.delete("/user/:id", checkadmin, checkId, async (req, res) => {
     res.status(500).send(error.message)
   }
 })
-/////doctor////////////////////////////////////////////////////
-//------------------------get doctors-----------------------------------
+
+/////////////////////////////doctor//////////////////////////
+//------------------------get doctors------------------------
 router.get("/doctor", checkadmin, async (req, res) => {
   try {
     const doctors = await User.find({ role: "Doctor" }).select("-__v")
@@ -112,7 +114,7 @@ router.get("/doctor", checkadmin, async (req, res) => {
     return res.status(500).send(error.message)
   }
 })
-//-------------------------get byId one doctor --------------------------------
+//-------------------------get byId one doctor -------------
 router.get("/doctor/:id", checkadmin, checkId, async (req, res) => {
   try {
     const doctors = await User.findOne({ _id: req.params.id, type: "Doctor" }).select("-__v")
@@ -122,7 +124,7 @@ router.get("/doctor/:id", checkadmin, checkId, async (req, res) => {
     return res.status(500).send(error.message)
   }
 })
-//-------------------------post singup doctors---------------------------------
+//-------------------------post singup doctors--------------
 router.post("/add-doctor", checkadmin, validatebody(singupdoctorJoi), async (req, res) => {
   try {
     const { firstName, lastName, email, password, image, specialization } = req.body
@@ -147,7 +149,7 @@ router.post("/add-doctor", checkadmin, validatebody(singupdoctorJoi), async (req
     return res.status(500).send(error.message)
   }
 })
-//--------------------------post login doctors ----------------------------------
+//--------------------------post login doctors -------------
 router.post("/login/doctor", validatebody(logindoctorJoi), async (req, res) => {
   try {
     const { email, password } = req.body
@@ -162,7 +164,7 @@ router.post("/login/doctor", validatebody(logindoctorJoi), async (req, res) => {
     return res.status(500).send(error.message)
   }
 })
-//-----------------------delet doctor-------------------------------------------
+//-----------------------delet doctor-----------------------
 router.delete("/doctor/:id", checkadmin, checkId, async (req, res) => {
   try {
     const user = await User.findById({ _id: req.params.id, type: "Doctor" })
@@ -200,34 +202,37 @@ router.post("/add-admin", checkadmin, validatebody(signupJoi), async (req, res) 
     return res.status(500).send(error.message)
   }
 })
-
 router.post("/login/admin", validatebody(loginJoi), async (req, res) => {
   try {
     const { email, password } = req.body
-    const user = await User.findOne({ email }) //*هذيuser
+    const user = await User.findOne({ email })
     if (!user) return res.status(404).send("user not found ")
     if (user.role != "Admin") return res.status(403).send("you not admin")
     const vaild = await bcrypt.compare(password, user.password)
     if (!vaild) return res.status(400).send(" password incorrect ")
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" }) //user اللي هنا بحط علامة * عليها
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" })
     res.json(token)
   } catch (error) {
     return res.status(500).send(error.message)
   }
 })
-////////////////////////////////////////////////////////////////////
-/// get profile ///////
+
+/////////////////////////////////// get profile //////////////
 router.get("/user/profile", checktoken, async (req, res) => {
   try {
     const user = await User.findById(req.userId)
       .select("-__v -password")
-      .populate("Appointments")
-      .populate("Vaccines")
-      .populate("Medicinerecords")
-      .populate("Rays")
-      .populate("Analyzings")
-      .populate("MadacalFile")
-      .populate("Blood")
+      // .populate("Appointments")
+      // .populate("Vaccines")
+      // .populate("Medicinerecords")
+      // .populate("Rays")
+      // .populate("Analyzings")
+      // .populate("MadacalFile")
+      // .populate("Blood")
+      .populate({
+        path: "Appointments",
+        populate: ["doctorId", "Vaccines", "Medicinerecords", "Rays", "Analyzings", "MadacalFile", "Blood"],
+      })
     if (!user) return res.status(404).send("user not found")
     res.json(user)
   } catch (error) {
@@ -254,7 +259,14 @@ router.put("/user/profile", checktoken, validatebody(profileJoi), async (req, re
 })
 router.get("/doctors/profile", checkDoctor, async (req, res) => {
   try {
-    const user = await User.findById(req.doctorId).select("firstName lastName image email")
+    const user = await User.findById(req.doctorId)
+      // .select("firstName lastName image email Appointments specialization")
+      .populate("AvailableAppointments")
+
+      .populate({
+        path: "Appointments",
+        populate: ["userId", "Vaccines", "Medicinerecords", "Rays", "Analyzings", "MadacalFile", "Blood"],
+      })
     res.json(user)
   } catch (error) {
     return res.status(500).send(error.message)
@@ -278,60 +290,59 @@ router.put("/doctors/profile/:id", checkDoctor, validatebody(profileJoi), async 
     return res.status(500).send(error.message)
   }
 })
-///company////////////////////////////////////////////////////////////
+////////////////////////////company/////////////////////////
+// router.get("/company", checkadmin, async (req, res) => {
+//   try {
+//     const company = await User.find({ role: "Company" }).select("-__v ")
+//     res.json(company)
+//   } catch (error) {
+//     return res.status(500).send(error.message)
+//   }
+// })
+// router.post("/signup-company", validatebody(signupCompnyJoi), async (req, res) => {
+//   try {
+//     const companybody = req.body
+//     const { name, email, password } = companybody
+//     const companyfound = await User.findOne({ email })
+//     if (companyfound) return res.status(404).send("company alrady register")
+//     const salt = await bcrypt.genSalt(10)
+//     const hash = await bcrypt.hash(password, salt)
 
-router.get("/company", checkadmin, async (req, res) => {
-  try {
-    const company = await User.find({ role: "Company" }).select("-__v ")
-    res.json(company)
-  } catch (error) {
-    return res.status(500).send(error.message)
-  }
-})
-router.post("/signup-company", validatebody(signupCompnyJoi), async (req, res) => {
-  try {
-    const companybody = req.body
-    const { name, email, password } = companybody
-    const companyfound = await User.findOne({ email })
-    if (companyfound) return res.status(404).send("company alrady register")
-    const salt = await bcrypt.genSalt(10)
-    const hash = await bcrypt.hash(password, salt)
-
-    const company = new User({
-      name,
-      email,
-      password: hash,
-      role: "Company",
-    })
-    await company.save()
-    delete company._doc.password
-    res.json(company)
-  } catch (error) {
-    return res.status(500).send(error.message)
-  }
-})
-router.post("/login-company", validatebody(loginCompanyJoi), async (req, res) => {
-  try {
-    const { email, password } = req.body
-    const company = await User.findOne({ email, role: "Company" })
-    if (!company) return res.status(404).send("company not found ")
-    const vaild = await bcrypt.compare(password, company.password)
-    if (!vaild) return res.status(400).send(" password incorrect ")
-    const token = jwt.sign({ id: company._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" })
-    res.json(token)
-  } catch (error) {
-    return res.status(500).send(error.message)
-  }
-})
-router.delete("/company/:id", checkadmin, checkId, async (req, res) => {
-  try {
-    const company = await User.findById(req.params.id)
-    if (!company) return res.status(404).send("campany not found ")
-    if (company.role === "Admin") return res.status(403).send("auauthorized action")
-    await User.findByIdAndRemove(req.params.id)
-    res.json("removed")
-  } catch (error) {
-    res.status(500).send(error.message)
-  }
-})
+//     const company = new User({
+//       name,
+//       email,
+//       password: hash,
+//       role: "Company",
+//     })
+//     await company.save()
+//     delete company._doc.password
+//     res.json(company)
+//   } catch (error) {
+//     return res.status(500).send(error.message)
+//   }
+// })
+// router.post("/login-company", validatebody(loginCompanyJoi), async (req, res) => {
+//   try {
+//     const { email, password } = req.body
+//     const company = await User.findOne({ email, role: "Company" })
+//     if (!company) return res.status(404).send("company not found ")
+//     const vaild = await bcrypt.compare(password, company.password)
+//     if (!vaild) return res.status(400).send(" password incorrect ")
+//     const token = jwt.sign({ id: company._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" })
+//     res.json(token)
+//   } catch (error) {
+//     return res.status(500).send(error.message)
+//   }
+// })
+// router.delete("/company/:id", checkadmin, checkId, async (req, res) => {
+//   try {
+//     const company = await User.findById(req.params.id)
+//     if (!company) return res.status(404).send("campany not found ")
+//     if (company.role === "Admin") return res.status(403).send("auauthorized action")
+//     await User.findByIdAndRemove(req.params.id)
+//     res.json("removed")
+//   } catch (error) {
+//     res.status(500).send(error.message)
+//   }
+// })
 module.exports = router

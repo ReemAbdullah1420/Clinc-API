@@ -2,8 +2,14 @@ const mongoose = require("mongoose")
 const Joi = require("joi")
 
 const BloodSchema = new mongoose.Schema({
-  bloodType: String,
-  bloodDonor: String,
+  bloodType: {
+    type: String,
+    default: "There are no data",
+  },
+  bloodDonor: {
+    type: String,
+    default: "There are no data",
+  },
   NextDonationDate: Date,
   lastDonationDate: Date,
 })

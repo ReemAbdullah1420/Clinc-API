@@ -28,7 +28,6 @@ const ProgramAddjoi = Joi.object({
   description: Joi.string().min(4).max(1000).required(),
   services: Joi.array().items(Joi.ObjectId()).min(1),
 })
-
 const ProgramEditjoi = Joi.object({
   title: Joi.string().max(100).min(1),
   image: Joi.string().max(100).min(1),

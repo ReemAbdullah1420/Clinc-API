@@ -21,7 +21,7 @@ router.get("/:id", checkId, checkDoctor,  async (req, res) => {
   res.json(vaccine)
 })
 //----------------------post Vaccine-------------------------------
-router.post("/", checkDoctor, validatebody(VaccineAddjoi), async (req, res) => {
+router.post("/:AppointmentId", checkDoctor, validatebody(VaccineAddjoi), async (req, res) => {
   try {
     const { vaccineType, doseDate } = req.body
     const vaccine = new Vaccine({

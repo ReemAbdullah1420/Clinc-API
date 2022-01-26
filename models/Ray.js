@@ -2,8 +2,14 @@ const mongoose = require("mongoose")
 const Joi = require("joi")
 
 const RaySchema = new mongoose.Schema({
-  rayName: String,
-  rayImage: String,
+  rayName: {
+    type: String,
+    default: "There are no data",
+  },
+  rayImage: {
+    type: String,
+    default: "There are no data",
+  },
 })
 const RayAddjoi = Joi.object({
   rayName: Joi.string().max(100).min(1).required(),

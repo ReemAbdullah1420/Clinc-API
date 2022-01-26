@@ -21,7 +21,7 @@ router.get("/:id", checkId, checkDoctor, async (req, res) => {
   res.json(analyzing)
 })
 //----------------------post Analyzing-------------------------------
-router.post("/", checkDoctor, validatebody(AnalyzingAddjoi), async (req, res) => {
+router.post("/:AppointmentId", checkDoctor, validatebody(AnalyzingAddjoi), async (req, res) => {
   try {
     const { analysisName, value, normalValue, explanation } = req.body
     const analyzing = new Analyzing({

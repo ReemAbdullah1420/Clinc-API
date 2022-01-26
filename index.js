@@ -17,7 +17,7 @@ const services = require("./router/services")
 const vaccines = require("./router/vaccines")
 const madacafiles = require("./router/madacalFile")
 mongoose
-  .connect(`mongodb+srv://Reem1420:${process.env.MONGODB_PASSWORD}@cluster0.vsjzx.mongodb.net/ClinicDB?retryWrites=true&w=majority`)
+  .connect(`mongodb+srv://Reem1420:${process.env.MONGODB_PASSWORD}@cluster0.vsjzx.mongodb.net/ClinicDB`)
   .then(() => {
     console.log("Connected to MongoDB")
   })

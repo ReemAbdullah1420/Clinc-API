@@ -3,7 +3,10 @@ const Joi = require("joi")
 
 const MadacalFileSchema = new mongoose.Schema({
   gender: String,
-  bloodType: String,
+  bloodType: {
+    type: String,
+    default: "There are no data",
+  },
   nationality: String,
   mobilePhone: Number,
   age: String,

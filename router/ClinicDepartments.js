@@ -6,7 +6,6 @@ const validatebody = require("../middelwear/validateboody")
 const { ClinicDepartmentsAddjoi, ClinicDepartmentsEditjoi, ClinicDepartments } = require("../models/ClinicDepartments")
 const { User } = require("../models/User")
 
-
 //-----------------------------------get ClinicDepartments--------------------------------
 router.get("/", async (req, res) => {
   try {
@@ -14,7 +13,7 @@ router.get("/", async (req, res) => {
       .select("-__v")
       .populate({
         path: "doctors",
-        select: "firstName lastName image ",
+        populate: "AvailableAppointments",
       })
       .populate("services")
     res.json(ClinicDepartment)
@@ -65,7 +64,7 @@ router.put("/:id", checkadmin, checkId, validatebody(ClinicDepartmentsEditjoi), 
     if (doctors) {
       const doctorSet = new Set(doctors)
       if (doctorSet.size < doctors.length) return res.status(400).send("there is duplicated")
-      const doctorFound = await User.find({ _id: { $in: doctors },type: "Doctor" })
+      const doctorFound = await User.find({ _id: { $in: doctors }, type: "Doctor" })
       if (doctorFound.length < doctors.length) return res.status(404).send("some of the doctors is not found ")
     }
     const clinicDepartment = await ClinicDepartments.findByIdAndUpdate(
