@@ -4,10 +4,12 @@ const checkadmin = require("../middelwear/checkadmin")
 const checkDoctor = require("../middelwear/checkDoctor")
 const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
+const { Appointment } = require("../models/Appointment")
 const { MadacalFile, MadacalFileAddjoi, MadacalFileEditjoi } = require("../models/MadacalFile")
+const { User } = require("../models/User")
 
 //-------------------------get MadacalFile--------------------------
-router.get("/", checkDoctor, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const madacalFile = await MadacalFile.find().select("-__v")
     res.json(madacalFile)
@@ -22,9 +24,9 @@ router.get("/:id", checkId, checkDoctor, async (req, res) => {
   res.json(madacalFile)
 })
 //----------------------post MadacalFile-------------------------------
-router.post("/:AppointmentId", checkDoctor, validatebody(MadacalFileAddjoi), async (req, res) => {
+router.post("/:AppointmentId",checkDoctor, validatebody(MadacalFileAddjoi), async (req, res) => {
   try {
-    const { gender, nationality, bloodType, sensitivity, mobilePhone, fileNumber, age, dateFile } = req.body
+    const { gender, nationality, bloodType, sensitivity, mobilePhone, fileNumber, age } = req.body
     const madacalFile = new MadacalFile({
       gender,
       nationality,
@@ -33,8 +35,10 @@ router.post("/:AppointmentId", checkDoctor, validatebody(MadacalFileAddjoi), asy
       mobilePhone,
       fileNumber,
       age,
-      dateFile,
     })
+    await Appointment.findByIdAndUpdate(req.params.AppointmentId, { $push: { MadacalFile: madacalFile } })
+    const appoinemrnt = await Appointment.findById(req.params.AppointmentId)
+    await User.findByIdAndUpdate(appoinemrnt.userId, { $push: { MadacalFile: madacalFile } })
     await madacalFile.save()
     res.json(madacalFile)
   } catch (error) {
@@ -44,11 +48,11 @@ router.post("/:AppointmentId", checkDoctor, validatebody(MadacalFileAddjoi), asy
 //--------------------------put MadacalFile --------------------------
 router.put("/:id", checkId, checkDoctor, validatebody(MadacalFileEditjoi), async (req, res) => {
   try {
-    const { gender, nationality, bloodType, sensitivity, mobilePhone, fileNumber, age, dateFile } = req.body
+    const { gender, nationality, bloodType, sensitivity, mobilePhone, fileNumber, age } = req.body
     const madacalFile = await MadacalFile.findByIdAndUpdate(
       req.params.id,
       {
-        $set: { gender, nationality, bloodType, sensitivity, mobilePhone, fileNumber, age, dateFile },
+        $set: { gender, nationality, bloodType, sensitivity, mobilePhone, fileNumber, age },
       },
       { new: true }
     )

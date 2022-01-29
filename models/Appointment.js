@@ -42,23 +42,22 @@ const AppointmentSchema = new mongoose.Schema({
   ],
   doctorId: {
     type: mongoose.Types.ObjectId,
-    ref: "Doctor",
+    ref: "User",
   },
   userId: {
     type: mongoose.Types.ObjectId,
     ref: "User",
+    default: null,
   },
 })
 
 const AppointmentAddjoi = Joi.object({
-  date: Joi.date().max(100).min(1).required(),
+  date: Joi.date().required(),
   time: Joi.string().min(1).max(1000).required(),
- 
 })
 const AppointmentEditjoi = Joi.object({
-  date: Joi.date().max(100).min(1),
+  date: Joi.date(),
   time: Joi.string().min(1).max(1000),
-
 })
 const Appointment = mongoose.model("Appointment", AppointmentSchema)
 module.exports.Appointment = Appointment

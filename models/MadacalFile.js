@@ -11,7 +11,6 @@ const MadacalFileSchema = new mongoose.Schema({
   mobilePhone: Number,
   age: String,
   fileNumber: String,
-  dateFile: Date,
   sensitivity: String,
 })
 const MadacalFileAddjoi = Joi.object({
@@ -22,7 +21,6 @@ const MadacalFileAddjoi = Joi.object({
   mobilePhone: Joi.number().min(10).required(),
   fileNumber: Joi.string().min(5).required(),
   age: Joi.string().min(1).required(),
-  dateFile: Joi.date().required(),
 })
 const MadacalFileEditjoi = Joi.object({
   gender: Joi.string().max(100).min(1),
@@ -32,7 +30,6 @@ const MadacalFileEditjoi = Joi.object({
   mobilePhone: Joi.number().min(10),
   fileNumber: Joi.string().min(5),
   age: Joi.string().min(1),
-  dateFile: Joi.date(),
 })
 
 const MadacalFile = mongoose.model("MadacalFile", MadacalFileSchema)

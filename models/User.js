@@ -67,7 +67,15 @@ const userSchema = new mongoose.Schema({
     enum: ["User", "Admin", "Doctor", "Company "],
     default: "User",
   },
-  
+  userId: {
+    type: mongoose.Types.ObjectId,
+    ref: "User",
+  },
+  doctorId: {
+    type: mongoose.Types.ObjectId,
+    ref: "User",
+  },
+
 })
 
 const signupJoi = Joi.object({

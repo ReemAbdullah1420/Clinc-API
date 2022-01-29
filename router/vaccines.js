@@ -3,10 +3,12 @@ const router = express.Router()
 const checkDoctor = require("../middelwear/checkDoctor")
 const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
+const { Appointment } = require("../models/Appointment")
+const { User } = require("../models/User")
 const { Vaccine, VaccineAddjoi, VaccineEditjoi } = require("../models/Vaccine")
 
 //-------------------------get Vaccine--------------------------
-router.get("/", checkDoctor,  async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const vaccine = await Vaccine.find().select("-__v")
     res.json(vaccine)
@@ -15,7 +17,7 @@ router.get("/", checkDoctor,  async (req, res) => {
   }
 })
 //-----------------------get byId Vaccine------------------------
-router.get("/:id", checkId, checkDoctor,  async (req, res) => {
+router.get("/:id", checkId, checkDoctor, async (req, res) => {
   const vaccine = await Vaccine.findById(req.params.id).select("-__v")
   if (!vaccine) return res.status(404).send("vaccine not found ")
   res.json(vaccine)
@@ -28,6 +30,9 @@ router.post("/:AppointmentId", checkDoctor, validatebody(VaccineAddjoi), async (
       vaccineType,
       doseDate,
     })
+    await Appointment.findByIdAndUpdate(req.params.AppointmentId, { $push: { Vaccines: vaccine } })
+    const appoinemrnt = await Appointment.findById(req.params.AppointmentId)
+    await User.findByIdAndUpdate(appoinemrnt.userId, { $push: { Vaccines: vaccine } })
     await vaccine.save()
     res.json(vaccine)
   } catch (error) {

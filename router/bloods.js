@@ -4,10 +4,12 @@ const checkadmin = require("../middelwear/checkadmin")
 const checkDoctor = require("../middelwear/checkDoctor")
 const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
+const { Appointment } = require("../models/Appointment")
 const { Blood, BloodAddjoi, BloodEditjoi } = require("../models/Blood")
+const { User } = require("../models/User")
 
 //-------------------------get Blood--------------------------
-router.get("/", checkDoctor, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const blood = await Blood.find().select("-__v")
     res.json(blood)
@@ -24,13 +26,14 @@ router.get("/:id", checkId, checkDoctor, async (req, res) => {
 //----------------------post Blood-------------------------------
 router.post("/:AppointmentId", checkDoctor, validatebody(BloodAddjoi), async (req, res) => {
   try {
-    const { bloodType, bloodDonor, NextDonationDate, lastDonationDate } = req.body
+    const { bloodType, bloodDonor } = req.body
     const blood = new Blood({
       bloodType,
       bloodDonor,
-      NextDonationDate,
-      lastDonationDate,
     })
+    await Appointment.findByIdAndUpdate(req.params.AppointmentId, { $push: { Blood: blood } })
+    const appoinemrnt = await Appointment.findById(req.params.AppointmentId)
+    await User.findByIdAndUpdate(appoinemrnt.userId, { $push: { Blood: blood } })
     await blood.save()
     res.json(blood)
   } catch (error) {
@@ -40,11 +43,11 @@ router.post("/:AppointmentId", checkDoctor, validatebody(BloodAddjoi), async (re
 //--------------------------put Blood --------------------------
 router.put("/:id", checkId, checkDoctor, validatebody(BloodEditjoi), async (req, res) => {
   try {
-    const { bloodType, bloodDonor, NextDonationDate, lastDonationDate } = req.body
+    const { bloodType, bloodDonor } = req.body
     const blood = await Blood.findByIdAndUpdate(
       req.params.id,
       {
-        $set: { bloodType, bloodDonor, NextDonationDate, lastDonationDate },
+        $set: { bloodType, bloodDonor },
       },
       { new: true }
     )

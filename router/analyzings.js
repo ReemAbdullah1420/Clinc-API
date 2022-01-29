@@ -4,9 +4,10 @@ const checkDoctor = require("../middelwear/checkDoctor")
 const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
 const { Analyzing, AnalyzingAddjoi, AnalyzingEditjoi } = require("../models/Analyzing")
-
+const { Appointment } = require("../models/Appointment")
+const { User } = require("../models/User")
 //-------------------------get Analyzing--------------------------
-router.get("/", checkDoctor, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const analyzing = await Analyzing.find().select("-__v")
     res.json(analyzing)
@@ -30,6 +31,9 @@ router.post("/:AppointmentId", checkDoctor, validatebody(AnalyzingAddjoi), async
       normalValue,
       explanation,
     })
+    await Appointment.findByIdAndUpdate(req.params.AppointmentId, { $push: { Analyzings: analyzing } })
+    const appoinemrnt = await Appointment.findById(req.params.AppointmentId)
+    await User.findByIdAndUpdate(appoinemrnt.userId, { $push: { Analyzings: analyzing } })
     await analyzing.save()
     res.json(analyzing)
   } catch (error) {

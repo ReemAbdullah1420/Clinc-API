@@ -17,11 +17,12 @@ const checkadmin = require("../middelwear/checkadmin")
 const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
 const checkDoctor = require("../middelwear/checkDoctor")
+const { ClinicDepartments } = require("../models/ClinicDepartments")
 
 //////////////////////user///////////////////////////////////
 //......................get all user-------------------------
 router.get("/users", checkadmin, async (req, res) => {
-  const user = await User.find({ role: "User" })
+  const user = await User.find({ role:["User" ,"Admin" ]})
   res.json(user)
 })
 //.....................get byId user-------------------------
@@ -143,6 +144,7 @@ router.post("/add-doctor", checkadmin, validatebody(singupdoctorJoi), async (req
       role: "Doctor",
     })
     await user.save()
+    // await ClinicDepartments.findByIdAndUpdate(req.doctorId, { $push: { doctorId : user._id } })
     delete user._doc.password
     res.json(user)
   } catch (error) {
@@ -167,7 +169,7 @@ router.post("/login/doctor", validatebody(logindoctorJoi), async (req, res) => {
 //-----------------------delet doctor-----------------------
 router.delete("/doctor/:id", checkadmin, checkId, async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.params.id, type: "Doctor" })
+    const user = await User.findById(req.params.id)
     if (!user) return res.status(404).send("doctor not found ")
     if (user.role === "Admin") return res.status(403).send("auauthorized action")
     await User.findByIdAndRemove(req.params.id)
@@ -177,7 +179,6 @@ router.delete("/doctor/:id", checkadmin, checkId, async (req, res) => {
   }
 })
 
-// اخر شي بسويه ف البوست مان
 router.post("/add-admin", checkadmin, validatebody(signupJoi), async (req, res) => {
   try {
     const userbody = req.body
@@ -218,21 +219,15 @@ router.post("/login/admin", validatebody(loginJoi), async (req, res) => {
 })
 
 /////////////////////////////////// get profile //////////////
-router.get("/user/profile", checktoken, async (req, res) => {
+router.get("/user/profile/user", checktoken, async (req, res) => {
   try {
     const user = await User.findById(req.userId)
       .select("-__v -password")
-      // .populate("Appointments")
-      // .populate("Vaccines")
-      // .populate("Medicinerecords")
-      // .populate("Rays")
-      // .populate("Analyzings")
-      // .populate("MadacalFile")
-      // .populate("Blood")
       .populate({
         path: "Appointments",
-        populate: ["doctorId", "Vaccines", "Medicinerecords", "Rays", "Analyzings", "MadacalFile", "Blood"],
+        populate: "userId",
       })
+      .populate(["Vaccines", "Rays", "Medicinerecords", "Analyzings", "MadacalFile", "Blood"])
     if (!user) return res.status(404).send("user not found")
     res.json(user)
   } catch (error) {
@@ -290,59 +285,4 @@ router.put("/doctors/profile/:id", checkDoctor, validatebody(profileJoi), async 
     return res.status(500).send(error.message)
   }
 })
-////////////////////////////company/////////////////////////
-// router.get("/company", checkadmin, async (req, res) => {
-//   try {
-//     const company = await User.find({ role: "Company" }).select("-__v ")
-//     res.json(company)
-//   } catch (error) {
-//     return res.status(500).send(error.message)
-//   }
-// })
-// router.post("/signup-company", validatebody(signupCompnyJoi), async (req, res) => {
-//   try {
-//     const companybody = req.body
-//     const { name, email, password } = companybody
-//     const companyfound = await User.findOne({ email })
-//     if (companyfound) return res.status(404).send("company alrady register")
-//     const salt = await bcrypt.genSalt(10)
-//     const hash = await bcrypt.hash(password, salt)
-
-//     const company = new User({
-//       name,
-//       email,
-//       password: hash,
-//       role: "Company",
-//     })
-//     await company.save()
-//     delete company._doc.password
-//     res.json(company)
-//   } catch (error) {
-//     return res.status(500).send(error.message)
-//   }
-// })
-// router.post("/login-company", validatebody(loginCompanyJoi), async (req, res) => {
-//   try {
-//     const { email, password } = req.body
-//     const company = await User.findOne({ email, role: "Company" })
-//     if (!company) return res.status(404).send("company not found ")
-//     const vaild = await bcrypt.compare(password, company.password)
-//     if (!vaild) return res.status(400).send(" password incorrect ")
-//     const token = jwt.sign({ id: company._id }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" })
-//     res.json(token)
-//   } catch (error) {
-//     return res.status(500).send(error.message)
-//   }
-// })
-// router.delete("/company/:id", checkadmin, checkId, async (req, res) => {
-//   try {
-//     const company = await User.findById(req.params.id)
-//     if (!company) return res.status(404).send("campany not found ")
-//     if (company.role === "Admin") return res.status(403).send("auauthorized action")
-//     await User.findByIdAndRemove(req.params.id)
-//     res.json("removed")
-//   } catch (error) {
-//     res.status(500).send(error.message)
-//   }
-// })
 module.exports = router

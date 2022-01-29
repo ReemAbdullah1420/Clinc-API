@@ -4,10 +4,12 @@ const router = express.Router()
 const checkDoctor = require("../middelwear/checkDoctor")
 const checkId = require("../middelwear/checkId")
 const validatebody = require("../middelwear/validateboody")
+const { Appointment } = require("../models/Appointment")
 const { Ray, RayAddjoi, RayEditjoi } = require("../models/Ray")
+const { User } = require("../models/User")
 
 //-------------------------get Ray--------------------------
-router.get("/", checkDoctor, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const ray = await Ray.find().select("-__v")
     res.json(ray)
@@ -29,6 +31,9 @@ router.post("/:AppointmentId", checkDoctor, validatebody(RayAddjoi), async (req,
       rayName,
       rayImage,
     })
+    await Appointment.findByIdAndUpdate(req.params.AppointmentId, { $push: { Rays: ray } })
+    const appoinemrnt = await Appointment.findById(req.params.AppointmentId)
+    await User.findByIdAndUpdate(appoinemrnt.userId, { $push: { Rays: ray } })
     await ray.save()
     res.json(ray)
   } catch (error) {

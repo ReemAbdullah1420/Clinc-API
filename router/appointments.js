@@ -7,19 +7,29 @@ const checktoken = require("../middelwear/checktoken")
 const validatebody = require("../middelwear/validateboody")
 
 const { Appointment, AppointmentAddjoi, AppointmentEditjoi } = require("../models/Appointment")
+const { ClinicDepartments } = require("../models/ClinicDepartments")
 const { User } = require("../models/User")
 
 //-------------------------get Appointment--------------------------
 router.get("/", async (req, res) => {
   try {
-    const appointment = await Appointment.find({ doctorId: req.doctorId }).select("-__v")
+    const appointment = await Appointment.find()
+      .select("-__v")
+      .populate({
+        path: "userId",
+
+        populate: "Appointments",
+      })
+      .populate("doctorId")
+    // .populate("doctorId")
+
     res.json(appointment)
   } catch (error) {
     return res.status(500).send(error.message)
   }
 })
 //----------------------post Appoinment-------------------------------
-//يضيفها الدكتور 
+//يضيفها الدكتور
 router.post("/", checkDoctor, validatebody(AppointmentAddjoi), async (req, res) => {
   try {
     const { date, time } = req.body
@@ -31,14 +41,15 @@ router.post("/", checkDoctor, validatebody(AppointmentAddjoi), async (req, res) 
     })
     // await User.findByIdAndUpdate(req.userId, { $push: { Appointments: appointment } })
     await User.findByIdAndUpdate(req.doctorId, { $push: { AvailableAppointments: appointment._id } })
+    await ClinicDepartments.findByIdAndUpdate(req.doctorId, { $push: { AvailableAppointments: appointment._id } })
     await appointment.save()
     res.json(appointment)
   } catch (error) {
     return res.status(500).send(error.message)
   }
 })
-//اللي يختارها المريض 
-router.post("/:AppoentmentId", checktoken, validatebody(AppointmentAddjoi), async (req, res) => {
+//اللي يختارها المريض
+router.post("/:AppoentmentId", checktoken, async (req, res) => {
   try {
     const appointment = await Appointment.findByIdAndUpdate(
       req.params.AppoentmentId,
@@ -84,7 +95,7 @@ router.delete("/:id", checkDoctor, checkId, async (req, res) => {
     return res.status(500).send(error.message)
   }
 })
-router.get("/:id", checktoken, async (req, res) => {
+router.get("/:id", checkId, checktoken, async (req, res) => {
   let appointment = await Appointment.findById(req.params.id)
   if (!appointment) return res.status(404).send("appointment not found ")
 
